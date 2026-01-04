@@ -1,0 +1,155 @@
+========================================
+YOGA POSE CORRECTION APP - RUN INSTRUCTIONS
+========================================
+
+PREREQUISITES:
+- Python 3.10.11 installed
+- Virtual environment created at: d:\yoga_app\backend\venv
+- All dependencies installed (see requirements.txt)
+
+========================================
+STEP 1: ACTIVATE VIRTUAL ENVIRONMENT
+========================================
+
+cd d:\yoga_app\backend
+.\venv\Scripts\activate
+
+========================================
+STEP 2: START BACKEND SERVER (Port 8000)
+========================================
+
+# Option A: Run in current terminal
+cd d:\yoga_app\backend
+d:\yoga_app\backend\venv\Scripts\python.exe main.py
+
+# Option B: Run in separate PowerShell window
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd d:\yoga_app\backend; d:\yoga_app\backend\venv\Scripts\python.exe main.py"
+
+Backend will be available at: http://localhost:8000
+
+========================================
+STEP 3: START FRONTEND SERVER (Port 8080)
+========================================
+
+# Option A: Run in current terminal (open new terminal first)
+cd d:\yoga_app\frontend
+python -m http.server 8080
+
+# Option B: Run in separate PowerShell window
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd d:\yoga_app\frontend; python -m http.server 8080"
+
+Frontend will be available at: http://localhost:8080
+
+========================================
+STEP 4: ACCESS THE APPLICATION
+========================================
+
+Open your web browser and navigate to:
+http://localhost:8080
+
+========================================
+VERIFY SERVERS ARE RUNNING
+========================================
+
+Test-NetConnection localhost -Port 8000 -InformationLevel Quiet
+Test-NetConnection localhost -Port 8080 -InformationLevel Quiet
+
+Both should return "True"
+
+========================================
+STOP ALL SERVERS
+========================================
+
+# Stop all Python processes
+Stop-Process -Name python -Force -ErrorAction SilentlyContinue
+
+# Or use Ctrl+C in each terminal window
+
+========================================
+TROUBLESHOOTING
+========================================
+
+1. If TensorFlow fails to load:
+   - Make sure you're using TensorFlow 2.13.0 (not 2.15.0)
+   - Check: pip list | Select-String tensorflow
+
+2. If port 8000 or 8080 is already in use:
+   - Find process: Get-Process | Where-Object {$_.ProcessName -eq "python"}
+   - Kill it: Stop-Process -Id <PROCESS_ID> -Force
+
+3. If CORS errors occur:
+   - Make sure you're accessing http://localhost:8080 (not file://)
+   - Check backend CORS settings in main.py
+
+4. Check backend logs in terminal for detailed error messages
+
+========================================
+QUICK START (ALL-IN-ONE)
+========================================
+
+# Stop any existing servers
+Stop-Process -Name python -Force -ErrorAction SilentlyContinue
+
+# Start backend in new window
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd d:\yoga_app\backend; Write-Host 'Backend: http://localhost:8000' -ForegroundColor Green; d:\yoga_app\backend\venv\Scripts\python.exe main.py"
+
+# Wait 3 seconds, then start frontend in new window
+Start-Sleep -Seconds 3; Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd d:\yoga_app\frontend; Write-Host 'Frontend: http://localhost:8080' -ForegroundColor Cyan; python -m http.server 8080"
+
+# Open browser after 5 seconds
+Start-Sleep -Seconds 5; Start-Process "http://localhost:8080"
+
+========================================
+PROJECT STRUCTURE
+========================================
+
+yoga_app/
+├── backend/
+│   ├── venv/                    # Python virtual environment
+│   ├── main.py                  # FastAPI server
+│   ├── model_handler.py         # TensorFlow model wrapper
+│   ├── video_processor.py       # Video frame extraction
+│   ├── requirements.txt         # Python dependencies
+│   └── temp_uploads/            # Temporary video storage
+├── frontend/
+│   ├── index.html              # Main web interface
+│   ├── app.js                  # Frontend JavaScript
+│   └── styles.css              # CSS styling
+├── model_prep/
+│   └── yoga_savedmodel/        # TensorFlow SavedModel
+├── test_video.py               # CLI test script
+└── RUN_INSTRUCTIONS.txt        # This file
+
+========================================
+SUPPORTED YOGA ASANAS
+========================================
+
+The model is trained on these 10 yoga poses:
+1. Anantasana (Side Reclining Leg Lift)
+2. Ardhakati Chakrasana (Standing Side Bend)
+3. Bhujangasana (Cobra Pose)
+4. Kati Chakrasana (Standing Spinal Twist)
+5. Marjariasana (Cat Pose)
+6. Parvatasana (Downward Facing Dog)
+7. Sarvangasana (Shoulder Stand)
+8. Tadasana (Mountain Pose)
+9. Vajrasana (Thunderbolt Pose)
+10. Viparita Karani (Legs Up the Wall)
+
+========================================
+DEPENDENCIES
+========================================
+
+Backend (Python):
+- fastapi==0.109.0
+- uvicorn==0.27.0
+- tensorflow==2.13.0
+- opencv-python==4.9.0.80
+- numpy==1.24.3
+- python-multipart==0.0.6
+
+Frontend:
+- Vanilla HTML/CSS/JavaScript (no dependencies)
+- Uses modern browser APIs (Fetch, FormData, MediaDevices)
+
+========================================

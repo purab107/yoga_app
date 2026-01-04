@@ -1,0 +1,356 @@
+========================================
+        YOGA POSE ANALYZER
+        HOW TO RUN GUIDE
+========================================
+
+This guide explains how to run the Yoga Pose Analyzer application in three different ways:
+1. Web Application (Browser)
+2. Flutter App on PC
+3. Flutter App on Mobile Phone
+
+
+========================================
+SECTION 1: RUN WEB APPLICATION
+========================================
+
+The web application runs in your browser with a Python backend.
+
+STEP 1: Start the Backend Server
+---------------------------------
+Open Terminal/PowerShell and run:
+
+cd d:\yoga_app\backend
+.\venv\Scripts\python.exe -m uvicorn main:app --reload
+
+Expected Output:
+- INFO: Uvicorn running on http://127.0.0.1:8000
+- Server should stay running (don't close this terminal)
+
+STEP 2: Start the Frontend Server
+----------------------------------
+Open a NEW Terminal/PowerShell window and run:
+
+cd d:\yoga_app\frontend
+python -m http.server 8080
+
+Expected Output:
+- Serving HTTP on :: port 8080 (http://[::]:8080/)
+
+STEP 3: Open in Browser
+------------------------
+Open your web browser and go to:
+http://localhost:8080
+
+STEP 4: Use the Application
+----------------------------
+1. Select a yoga asana from the dropdown (e.g., Tadasana)
+2. Click "Choose File" or drag & drop a video
+3. Click "Analyze Pose"
+4. Wait for results (10-30 seconds)
+5. View accuracy, confidence, and frame-by-frame analysis
+
+TROUBLESHOOTING:
+- If port 8000 is busy: Change port in backend/main.py or use --port 8001
+- If port 8080 is busy: Use python -m http.server 8081
+- Backend not responding: Check if TensorFlow model loaded (check terminal logs)
+
+
+========================================
+SECTION 2: RUN FLUTTER APP ON PC
+========================================
+
+The Flutter app runs on your computer using Chrome browser.
+
+PREREQUISITES:
+- Flutter SDK must be installed at C:\flutter_sdk\flutter\bin
+- Backend server must be running
+
+STEP 1: Start the Backend Server
+---------------------------------
+Open Terminal/PowerShell and run:
+
+cd d:\yoga_app\backend
+.\venv\Scripts\python.exe -m uvicorn main:app --reload
+
+Keep this terminal open.
+
+STEP 2: Run Flutter App
+------------------------
+Open a NEW Terminal/PowerShell window and run:
+
+cd d:\yoga_app\flutter_app
+$env:PATH = "C:\flutter_sdk\flutter\bin;" + $env:PATH
+flutter run -d chrome
+
+Expected Output:
+- Building application...
+- Launches Chrome browser automatically
+- App runs at http://localhost:XXXXX
+
+STEP 3: Use the Application
+----------------------------
+1. Splash screen appears (2 seconds)
+2. Tap "Analyze Yoga Asana"
+3. Select asana from grid (e.g., Bhujangasana)
+4. Tap "Upload Video" and select a video file
+5. Wait for processing
+6. View results with video playback and frame analysis
+
+ALTERNATIVE QUICK START:
+------------------------
+Use the batch script:
+
+cd d:\yoga_app\flutter_app
+run_flutter_app.bat
+
+This automatically sets up PATH and runs the app.
+
+TROUBLESHOOTING:
+- Flutter not found: Verify Flutter is at C:\flutter_sdk\flutter\bin
+- Backend connection error: Ensure backend is running on port 8000
+- Chrome not launching: Run flutter devices to check available devices
+
+
+========================================
+SECTION 3: RUN FLUTTER APP ON MOBILE
+========================================
+
+The Flutter app runs natively on your Android phone, connecting to backend on your PC.
+
+PREREQUISITES:
+- Android phone with "Install from Unknown Sources" enabled
+- Phone and PC must be on the SAME WiFi network
+- Backend server running on PC
+
+STEP 1: Find Your PC's IP Address
+----------------------------------
+On your PC, open Terminal/PowerShell and run:
+
+ipconfig
+
+Look for "IPv4 Address" under your WiFi adapter.
+Example: 192.168.1.9
+
+STEP 2: Update Flutter App with Your IP
+----------------------------------------
+Open this file in a text editor:
+d:\yoga_app\flutter_app\lib\screens\processing_screen.dart
+
+Find line 44 (around line 44):
+Uri.parse('http://192.168.1.9:8000/analyze-pose'),
+
+Replace 192.168.1.9 with YOUR IP address from Step 1.
+
+Save the file.
+
+STEP 3: Build the APK
+---------------------
+Open Terminal/PowerShell and run:
+
+cd d:\yoga_app\flutter_app
+$env:PATH = "C:\flutter_sdk\flutter\bin;" + $env:PATH
+flutter build apk --release
+
+Expected Output:
+- Building... (takes 1-2 minutes)
+- ✓ Built build\app\outputs\flutter-apk\app-release.apk (20.0MB)
+
+The APK is located at:
+d:\yoga_app\flutter_app\build\app\outputs\flutter-apk\app-release.apk
+
+STEP 4: Transfer APK to Phone
+------------------------------
+Choose one method:
+
+METHOD A - USB Cable:
+1. Connect phone to PC via USB
+2. Select "File Transfer" mode on phone
+3. Copy app-release.apk to phone's Downloads folder
+4. Disconnect phone
+
+METHOD B - Email:
+1. Email the APK file to yourself
+2. Open email on phone
+3. Download the attachment
+
+METHOD C - Google Drive:
+1. Upload APK to Google Drive
+2. Download from Drive app on phone
+
+METHOD D - ADB (if installed):
+cd d:\yoga_app\flutter_app\build\app\outputs\flutter-apk
+adb install app-release.apk
+
+STEP 5: Install APK on Phone
+-----------------------------
+1. On phone, go to Settings > Security
+2. Enable "Install from Unknown Sources" or "Install Unknown Apps"
+3. Open Files app on phone
+4. Navigate to Downloads folder
+5. Tap on app-release.apk
+6. Tap "Install"
+7. Wait for installation to complete
+8. Tap "Open" or find "Yoga" app in app drawer
+
+STEP 6: Start Backend Server on PC
+-----------------------------------
+On your PC, open Terminal/PowerShell and run:
+
+cd d:\yoga_app\backend
+.\venv\Scripts\python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000
+
+IMPORTANT: Use --host 0.0.0.0 (not 127.0.0.1) to make server accessible from phone.
+
+Expected Output:
+- INFO: Uvicorn running on http://0.0.0.0:8000
+
+Keep this terminal open while using the app.
+
+STEP 7: Use the App on Phone
+-----------------------------
+1. Ensure phone is on same WiFi as PC
+2. Open "Yoga" app on phone
+3. Tap "Analyze Yoga Asana"
+4. Select yoga pose (e.g., Vajrasana)
+5. Tap "Upload Video"
+6. Select a video from your phone
+7. Wait for upload and processing (20-40 seconds)
+8. View results with accuracy scores and frame analysis
+
+STEP 8: View Results
+---------------------
+Results screen shows:
+- Overall accuracy percentage
+- Number of correct frames
+- Average confidence score
+- Video playback with frame-by-frame navigation
+- Expandable frame analysis with images
+- Color-coded feedback (green/orange/red)
+
+TROUBLESHOOTING:
+----------------
+ERROR: "Connection failed"
+- Check phone and PC are on SAME WiFi network
+- Verify IP address in processing_screen.dart matches your PC's IP
+- Check backend server is running with --host 0.0.0.0
+- Check Windows Firewall isn't blocking port 8000
+
+ERROR: "Operation not permitted"
+- Rebuild APK with internet permission (already added)
+- Reinstall the app
+
+ERROR: "Server error 500"
+- Check backend terminal for error logs
+- Ensure TensorFlow model loaded successfully
+
+FIREWALL CONFIGURATION:
+If connection still fails, allow port 8000:
+1. Open Windows Defender Firewall
+2. Advanced Settings > Inbound Rules
+3. New Rule > Port > TCP > 8000
+4. Allow the connection
+5. Apply to all profiles
+
+
+========================================
+SUPPORTED YOGA ASANAS
+========================================
+
+The model is trained to recognize these 10 yoga poses:
+1. Anantasana (Sleeping Vishnu Pose)
+2. Ardhakati Chakrasana (Standing Side Stretch)
+3. Bhujangasana (Cobra Pose)
+4. Kati Chakrasana (Standing Spinal Twist)
+5. Marjariasana (Cat Pose)
+6. Parvatasana (Mountain Pose)
+7. Sarvangasana (Shoulder Stand)
+8. Tadasana (Mountain Pose/Standing Pose)
+9. Vajrasana (Thunderbolt Pose)
+10. Viparita Karani (Legs-Up-the-Wall Pose)
+
+
+========================================
+VIDEO REQUIREMENTS
+========================================
+
+For best results:
+- Format: MP4, AVI, MOV, MKV, or WEBM
+- Duration: 3-30 seconds recommended
+- Quality: 720p or higher
+- Lighting: Good lighting, clear visibility of pose
+- Background: Uncluttered background works best
+- Framing: Full body should be visible in frame
+
+
+========================================
+SYSTEM REQUIREMENTS
+========================================
+
+BACKEND (Python):
+- Python 3.10 or higher
+- TensorFlow 2.13.0
+- OpenCV 4.9.0.80
+- FastAPI 0.109.0
+- 4GB RAM minimum
+- Windows/Linux/macOS
+
+FLUTTER APP:
+- Flutter SDK 3.24.5 or higher
+- Chrome browser (for PC testing)
+- Android 5.0+ (API 21+) for mobile
+- 100MB free space
+
+NETWORK:
+- For mobile: PC and phone on same WiFi
+- Port 8000 must be available
+- Minimum 5 Mbps upload speed recommended
+
+
+========================================
+ADDITIONAL NOTES
+========================================
+
+1. Backend Server Performance:
+   - First request may take 30-60 seconds (model loading)
+   - Subsequent requests are faster (5-15 seconds)
+   - Model stays loaded in memory
+
+2. Video Processing:
+   - Extracts frames at 10 FPS sample rate
+   - Analyzes each frame individually
+   - Returns aggregated results
+
+3. Model Accuracy:
+   - Trained on yoga pose dataset
+   - Best results with clear, well-lit videos
+   - Confidence scores indicate model certainty
+
+4. Development Mode:
+   - Backend runs with --reload for auto-restart
+   - Remove --reload for production deployment
+
+5. Cloud Deployment:
+   - For production, deploy backend to cloud (Heroku, Railway, Google Cloud)
+   - Update Flutter app URL to cloud backend
+   - Phone will work anywhere with internet
+
+
+========================================
+SUPPORT & DOCUMENTATION
+========================================
+
+For more information:
+- Project Documentation: d:\yoga_app\PROJECT_DOCUMENTATION.txt
+- GitHub README: d:\yoga_app\README.md
+- Model Details: d:\yoga_app\model_prep\convert_to_tflite.py
+
+For issues:
+- Check terminal logs for error messages
+- Verify all dependencies installed
+- Ensure correct Python/Flutter versions
+- Test with sample videos first
+
+
+========================================
+END OF GUIDE
+========================================
