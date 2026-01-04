@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http_parser/http_parser.dart';
 import 'results_screen.dart';
+import '../config/api_config.dart';
 
 /// Processing screen with loading indicator
 class ProcessingScreen extends StatefulWidget {
@@ -41,7 +42,7 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
       // Prepare multipart request
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://192.168.1.9:8000/analyze-pose'),
+        Uri.parse(ApiConfig.analyzeEndpoint),
       );
 
       // Add video file from bytes
@@ -89,7 +90,7 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e\n\nMake sure backend is running on port 8000'),
+            content: Text('Error: $e\n\nMake sure backend is accessible at:\n${ApiConfig.baseUrl}'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
           ),

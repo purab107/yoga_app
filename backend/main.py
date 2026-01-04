@@ -30,7 +30,8 @@ app.add_middleware(
 video_processor = VideoProcessor()
 
 # Model will be loaded lazily
-SAVED_MODEL_PATH = "D:/yoga_app/model_prep/yoga_savedmodel"
+# Use relative path that works both locally and on Azure
+SAVED_MODEL_PATH = os.path.join(os.path.dirname(__file__), "..", "model_prep", "yoga_savedmodel")
 model_handler = None
 
 # Create temp directory for uploads
