@@ -1,6 +1,10 @@
 const API_URL = 'http://localhost:8000';
 let selectedFile = null;
 let webcamStream = null;
+let currentFrameIndex = 0;
+let frameResultsData = [];
+let showAllFrames = false;
+let analysisData = null;
 
 // Tab switching
 function switchTab(tab) {
@@ -114,44 +118,199 @@ async function analyzeVideo() {
 
 // Display results
 function displayResults(data) {
+    analysisData = data;
+    frameResultsData = data.frame_results || [];
+    currentFrameIndex = 0;
+    showAllFrames = false;
+    
+    // Update asana name
+    document.getElementById('asanaName').textContent = data.expected_pose || 'Yoga Asana';
+    
     // Update statistics
-    document.getElementById('accuracy').textContent = `${data.accuracy_percentage}%`;
-    document.getElementById('confidence').textContent = `${data.average_confidence.toFixed(2)}`;
-    document.getElementById('framesCount').textContent = data.total_frames_analyzed;
-    document.getElementById('correctFrames').textContent = `${data.correct_frames} / ${data.total_frames_analyzed}`;
+    const accuracy = data.accuracy_percentage || 0;
+    document.getElementById('accuracy').textContent = `${accuracy.toFixed(1)}%`;
+    document.getElementById('confidence').textContent = `${(data.average_confidence * 100).toFixed(1)}%`;
+    document.getElementById('framesCount').textContent = data.total_frames_analyzed || 0;
+    document.getElementById('correctFrames').textContent = `${data.correct_frames || 0}/${data.total_frames_analyzed || 0}`;
+    
+    // Update status banner
+    updateStatusBanner(accuracy);
     
     // Update overall feedback
-    let feedbackText = data.overall_feedback;
-    if (data.expected_pose) {
-        feedbackText = `Expected Asana: ${data.expected_pose}\n\n${feedbackText}`;
+    document.getElementById('overallFeedback').textContent = data.overall_feedback || 'No feedback available';
+    
+    // Initialize video analysis
+    if (frameResultsData.length > 0) {
+        updateVideoPlayer(0);
+        document.querySelector('.video-analysis-section').style.display = 'block';
+    } else {
+        document.querySelector('.video-analysis-section').style.display = 'none';
     }
-    document.getElementById('overallFeedback').textContent = feedbackText;
     
     // Update frame-by-frame results
+    renderFrameCards();
+    
+    // Show results
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+}
+
+function updateStatusBanner(accuracy) {
+    const banner = document.getElementById('statusBanner');
+    const statusText = document.getElementById('statusText');
+    const statusIcon = banner.querySelector('.status-icon');
+    
+    banner.className = 'status-banner';
+    
+    if (accuracy >= 90) {
+        banner.classList.add('status-excellent');
+        statusText.textContent = 'Excellent';
+        statusIcon.textContent = '✓';
+    } else if (accuracy >= 70) {
+        banner.classList.add('status-good');
+        statusText.textContent = 'Good';
+        statusIcon.textContent = '⚠';
+    } else {
+        banner.classList.add('status-needs-improvement');
+        statusText.textContent = 'Needs Improvement';
+        statusIcon.textContent = '✗';
+    }
+}
+
+function updateVideoPlayer(index) {
+    if (index < 0 || index >= frameResultsData.length) return;
+    
+    currentFrameIndex = index;
+    const frame = frameResultsData[index];
+    
+    // Update frame image
+    const frameImage = document.getElementById('currentFrameImage');
+    frameImage.src = frame.image || '';
+    frameImage.style.display = frame.image ? 'block' : 'none';
+    
+    // Update feedback badge
+    const feedbackBadge = document.getElementById('frameFeedbackBadge');
+    const isCorrect = frame.is_correct || false;
+    const pose = frame.pose_detected || 'Unknown';
+    const confidence = ((frame.confidence || 0) * 100).toFixed(1);
+    
+    feedbackBadge.textContent = isCorrect 
+        ? `✓ Correct Form - ${pose} (${confidence}%)` 
+        : `✗ Adjust Pose - ${pose} (${confidence}%)`;
+    feedbackBadge.className = isCorrect ? 'feedback-badge correct' : 'feedback-badge incorrect';
+    
+    // Update frame counter
+    document.getElementById('frameCounter').textContent = `Frame ${index + 1}/${frameResultsData.length}`;
+    
+    // Update progress bar
+    const progressBar = document.getElementById('progressBar');
+    const progress = ((index + 1) / frameResultsData.length) * 100;
+    progressBar.style.width = `${progress}%`;
+    
+    // Update button states
+    document.getElementById('prevFrameBtn').disabled = index === 0;
+    document.getElementById('nextFrameBtn').disabled = index === frameResultsData.length - 1;
+}
+
+function previousFrame() {
+    if (currentFrameIndex > 0) {
+        updateVideoPlayer(currentFrameIndex - 1);
+    }
+}
+
+function nextFrame() {
+    if (currentFrameIndex < frameResultsData.length - 1) {
+        updateVideoPlayer(currentFrameIndex + 1);
+    }
+}
+
+async function playFrameSequence() {
+    const playBtn = document.getElementById('playBtn');
+    const playIcon = playBtn.querySelector('span');
+    
+    // Disable button during playback
+    playBtn.disabled = true;
+    playIcon.textContent = '⏸';
+    
+    for (let i = 0; i < frameResultsData.length; i++) {
+        updateVideoPlayer(i);
+        await new Promise(resolve => setTimeout(resolve, 800));
+    }
+    
+    // Re-enable button
+    playBtn.disabled = false;
+    playIcon.textContent = '▶';
+}
+
+function renderFrameCards() {
     const frameResults = document.getElementById('frameResults');
     frameResults.innerHTML = '';
     
-    data.frame_results.forEach(frame => {
+    const framesToShow = showAllFrames ? frameResultsData : frameResultsData.slice(0, 5);
+    
+    framesToShow.forEach(frame => {
         const frameCard = document.createElement('div');
         frameCard.className = `frame-card ${frame.is_correct ? 'correct' : 'incorrect'}`;
+        
+        const frameNum = (frame.frame_number || 0) + 1;
+        const pose = frame.pose_detected || 'Unknown';
+        const confidence = ((frame.confidence || 0) * 100).toFixed(1);
+        const feedback = frame.feedback || '';
+        
         frameCard.innerHTML = `
-            <img src="${frame.image}" alt="Frame ${frame.frame_number + 1}" class="frame-image">
+            ${frame.image ? `<img src="${frame.image}" alt="Frame ${frameNum}" class="frame-image">` : ''}
             <div class="frame-header">
-                <span class="frame-number">Frame ${frame.frame_number + 1}</span>
+                <span class="frame-number">Frame ${frameNum}</span>
                 <span class="frame-status">${frame.is_correct ? '✅' : '❌'}</span>
             </div>
             <div class="frame-info">
-                <p><strong>Pose:</strong> ${frame.pose_detected}</p>
-                <p><strong>Confidence:</strong> ${(frame.confidence * 100).toFixed(1)}%</p>
-                <p class="frame-feedback">${frame.feedback}</p>
+                <p><strong>Pose:</strong> ${pose}</p>
+                <p><strong>Confidence:</strong> ${confidence}%</p>
+                ${feedback ? `<p class="frame-feedback">${feedback}</p>` : ''}
             </div>
         `;
         frameResults.appendChild(frameCard);
     });
     
-    // Show results
-    document.getElementById('results').style.display = 'block';
-    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    // Update toggle button
+    const toggleBtn = document.getElementById('toggleFramesBtn');
+    const toggleText = document.getElementById('toggleText');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (frameResultsData.length > 5) {
+        toggleBtn.style.display = 'flex';
+        if (showAllFrames) {
+            toggleText.textContent = 'Show less';
+            toggleIcon.textContent = '▲';
+        } else {
+            toggleText.textContent = `+ ${frameResultsData.length - 5} more frames`;
+            toggleIcon.textContent = '▼';
+        }
+    } else {
+        toggleBtn.style.display = 'none';
+    }
+}
+
+function toggleFrames() {
+    showAllFrames = !showAllFrames;
+    renderFrameCards();
+}
+
+function retakeVideo() {
+    // Hide results and reset video
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('videoPreview').scrollIntoView({ behavior: 'smooth' });
+}
+
+function backToHome() {
+    // Hide results and reset everything
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('selectedFile').style.display = 'none';
+    document.getElementById('videoPreview').style.display = 'none';
+    selectedFile = null;
+    document.getElementById('videoInput').value = '';
+    document.getElementById('poseSelect').value = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Webcam functionality

@@ -86,35 +86,94 @@
 
             <!-- Results Section -->
             <div id="results" class="results-section" style="display: none;">
-                <h2>📊 Analysis Results</h2>
+                <div class="results-header">
+                    <h2 id="asanaName" class="asana-title">Tadasana</h2>
+                </div>
                 
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <h3>Accuracy</h3>
+                        <div class="stat-icon">🎯</div>
                         <p class="stat-value" id="accuracy">--</p>
+                        <h3>Accuracy</h3>
                     </div>
                     <div class="stat-card">
-                        <h3>Confidence</h3>
-                        <p class="stat-value" id="confidence">--</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Frames Analyzed</h3>
-                        <p class="stat-value" id="framesCount">--</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Correct Frames</h3>
+                        <div class="stat-icon">✓</div>
                         <p class="stat-value" id="correctFrames">--</p>
+                        <h3>Correct</h3>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🧠</div>
+                        <p class="stat-value" id="confidence">--</p>
+                        <h3>Confidence</h3>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📹</div>
+                        <p class="stat-value" id="framesCount">--</p>
+                        <h3>Frames</h3>
                     </div>
                 </div>
 
-                <div class="feedback-section">
-                    <h3>💡 Feedback</h3>
-                    <p id="overallFeedback" class="feedback-text"></p>
+                <!-- Status Banner -->
+                <div id="statusBanner" class="status-banner status-excellent">
+                    <span class="status-icon">✓</span>
+                    <span class="status-text" id="statusText">Excellent</span>
                 </div>
 
+                <!-- Overall Feedback -->
+                <div class="feedback-section">
+                    <h3>Overall Feedback:</h3>
+                    <div class="feedback-text" id="overallFeedback"></div>
+                </div>
+
+                <!-- Video Analysis Section -->
+                <div class="video-analysis-section">
+                    <div class="video-analysis-header">
+                        <span class="video-icon">▶️</span>
+                        <h3>Video Analysis</h3>
+                    </div>
+                    <div class="video-display-area">
+                        <div class="video-frame-container">
+                            <img id="currentFrameImage" src="" alt="Current Frame" class="current-frame-image">
+                            <div class="video-feedback-overlay">
+                                <div class="feedback-badge" id="frameFeedbackBadge">
+                                    Ready to analyze
+                                </div>
+                            </div>
+                            <div class="video-controls-overlay">
+                                <div class="frame-counter" id="frameCounter">Frame 1/1</div>
+                                <div class="playback-controls">
+                                    <button class="control-btn" id="prevFrameBtn" onclick="previousFrame()">
+                                        <span>⏮</span>
+                                    </button>
+                                    <button class="control-btn play-btn" id="playBtn" onclick="playFrameSequence()">
+                                        <span>▶</span>
+                                    </button>
+                                    <button class="control-btn" id="nextFrameBtn" onclick="nextFrame()">
+                                        <span>⏭</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Frame-by-Frame Analysis -->
                 <div class="frame-details">
-                    <h3>Frame-by-Frame Analysis</h3>
+                    <h3>Frame Analysis:</h3>
                     <div id="frameResults" class="frame-list"></div>
+                    <button id="toggleFramesBtn" class="toggle-frames-btn" style="display: none;" onclick="toggleFrames()">
+                        <span id="toggleIcon">▼</span>
+                        <span id="toggleText">+ 0 more frames</span>
+                    </button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="retakeVideo()">Retake Video</button>
+                    <button class="btn-secondary-outline" onclick="backToHome()">Back to Home</button>
                 </div>
             </div>
         </main>
