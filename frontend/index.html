@@ -3,17 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yoga Pose Correction</title>
+    <title>Yoga App - Pose Correction</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🧘 Yoga Pose Correction</h1>
-            <p>Upload a video or use your webcam to analyze your yoga pose</p>
-        </header>
+    <div class="main-container">
+        <!-- Splash Screen -->
+        <div id="splashScreen" class="screen active">
+            <div class="splash-content">
+                <h1 class="splash-title">Yoga App</h1>
+            </div>
+        </div>
 
-        <main>
+        <!-- Navigation Bar -->
+        <nav class="navbar" id="navbar">
+            <div class="nav-content">
+                <div class="nav-brand" onclick="goHome()">
+                    <span class="nav-logo">🧘</span>
+                    <span class="nav-title">Yoga App</span>
+                </div>
+                <button class="nav-back-btn" id="navBackBtn" onclick="goHome()" style="display: none;">
+                    <span class="back-icon">←</span> Home
+                </button>
+            </div>
+        </nav>
+
+        <!-- Home Screen -->
+        <div id="homeScreen" class="screen">
+            <div class="home-hero">
+                <h1 class="hero-title">Yoga App</h1>
+                <p class="hero-subtitle">Perfect Your Yoga Poses</p>
+            </div>
+
+            <div class="home-content">
+                <button class="primary-action" onclick="navigateToAnalyze()">
+                    <span class="action-icon">🧘</span>
+                    <span class="action-text">Analyze Yoga Asana</span>
+                </button>
+
+                <div class="other-exercises">
+                    <h2>Other Exercises</h2>
+                    <div class="exercises-grid">
+                        <div class="exercise-card locked">
+                            <div class="exercise-icon">💪</div>
+                            <h3>Strength Training</h3>
+                            <span class="lock-badge">🔒</span>
+                        </div>
+                        <div class="exercise-card locked">
+                            <div class="exercise-icon">🤸</div>
+                            <h3>Mobility</h3>
+                            <span class="lock-badge">🔒</span>
+                        </div>
+                        <div class="exercise-card locked">
+                            <div class="exercise-icon">🏥</div>
+                            <h3>Physiotherapy</h3>
+                            <span class="lock-badge">🔒</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Asana Selection Screen -->
+        <div id="asanaScreen" class="screen">
+            <div class="screen-header">
+                <h2>Select Asana</h2>
+                <p>Choose the yoga pose you want to analyze</p>
+            </div>
+
+            <div class="asana-grid">
+                <div class="asana-card" onclick="selectAsana('Anantasana')">
+                    <div class="asana-icon">🏖️</div>
+                    <span class="asana-name">Anantasana</span>
+                </div>
+                <div class="asana-card" onclick="selectAsana('Ardhakati Chakrasana')">
+                    <div class="asana-icon">🤸</div>
+                    <span class="asana-name">Ardhakati Chakrasana</span>
+                </div>
+                <div class="asana-card" onclick="selectAsana('Bhujangasana')">
+                    <div class="asana-icon">🐍</div>
+                    <span class="asana-name">Bhujangasana</span>
+                </div>
+                <div class="asana-card" onclick="selectAsana('Kati Chakrasana')">
+                    <div class="asana-icon">🔄</div>
+                    <span class="asana-name">Kati Chakrasana</span>
+                </div>
+                <div class="asana-card" onclick="selectAsana('Marjariasana')">
+                    <div class="asana-icon">🐱</div>
+                    <span class="asana-name">Marjariasana</span>
+                </div>
+                <div class="asana-card" onclick="selectAsana('Parvatasana')">
+                    <div class="asana-icon">⛰️</div>
+                    <span class="asana-name">Parvatasana</span>
+                </div>
+                <div class="asana-card" onclick="selectAsana('Sarvangasana')">
+                    <div class="asana-icon">🛑</div>
+                    <span class="asana-name">Sarvangasana</span>
+                </div>
+                <div class="asana-card" onclick="selectAsana('Tadasana')">
+                    <div class="asana-icon">🧘</div>
+                    <span class="asana-name">Tadasana</span>
+                </div>
+                <div class="asana-card" onclick="selectAsana('Vajrasana')">
+                    <div class="asana-icon">💪</div>
+                    <span class="asana-name">Vajrasana</span>
+                </div>
+                <div class="asana-card" onclick="selectAsana('Viparita Karani')">
+                    <div class="asana-icon">📚</div>
+                    <span class="asana-name">Viparita Karani</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processing Screen -->
+        <div id="processingScreen" class="screen">
+            <div class="processing-content">
+                <div class="spinner"></div>
+                <p class="processing-message" id="processingMessage">Analyzing your posture...</p>
+            </div>
+        </div>
+
+        <!-- Video Upload Screen -->
+        <div id="uploadScreen" class="screen">
+            <div class="screen-header">
+                <h2>Upload Video</h2>
+                <div class="selected-asana-info">
+                    <p>Selected Asana:</p>
+                    <h3 id="selectedAsanaName">Tadasana</h3>
+                </div>
+            </div>
+
             <!-- Tab Navigation -->
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchTab('video')">📹 Upload Video</button>
@@ -23,23 +142,6 @@
             <!-- Video Upload Section -->
             <div id="video-tab" class="tab-content active">
                 <div class="upload-section">
-                    <div class="pose-selection">
-                        <label for="poseSelect"><strong>Select the Asana in your video:</strong></label>
-                        <select id="poseSelect" class="pose-dropdown">
-                            <option value="">-- Select Asana --</option>
-                            <option value="Anantasana">Anantasana (Side Reclining Leg Lift)</option>
-                            <option value="Ardhakati Chakrasana">Ardhakati Chakrasana (Standing Side Bend)</option>
-                            <option value="Bhujangasana">Bhujangasana (Cobra Pose)</option>
-                            <option value="Kati Chakrasana">Kati Chakrasana (Standing Spinal Twist)</option>
-                            <option value="Marjariasana">Marjariasana (Cat Pose)</option>
-                            <option value="Parvatasana">Parvatasana (Downward Facing Dog)</option>
-                            <option value="Sarvangasana">Sarvangasana (Shoulder Stand)</option>
-                            <option value="Tadasana">Tadasana (Mountain Pose)</option>
-                            <option value="Vajrasana">Vajrasana (Thunderbolt Pose)</option>
-                            <option value="Viparita Karani">Viparita Karani (Legs Up the Wall)</option>
-                        </select>
-                    </div>
-
                     <div class="upload-box" id="uploadBox">
                         <input type="file" id="videoInput" accept="video/*" hidden>
                         <label for="videoInput" class="upload-label">
@@ -173,14 +275,10 @@
                 <!-- Action Buttons -->
                 <div class="action-buttons">
                     <button class="btn-primary" onclick="retakeVideo()">Retake Video</button>
-                    <button class="btn-secondary-outline" onclick="backToHome()">Back to Home</button>
+                    <button class="btn-secondary-outline" onclick="goHome()">Back to Home</button>
                 </div>
             </div>
-        </main>
-
-        <footer>
-            <p>Powered by TensorFlow & FastAPI</p>
-        </footer>
+        </div>
     </div>
 
     <script src="app.js"></script>

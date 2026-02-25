@@ -5,6 +5,84 @@ let currentFrameIndex = 0;
 let frameResultsData = [];
 let showAllFrames = false;
 let analysisData = null;
+let currentSelectedAsana = 'Tadasana';
+let hasSeenSplash = false;
+
+// Splash Screen - Auto-navigate after 2 seconds
+function initSplashScreen() {
+    if (!hasSeenSplash) {
+        hasSeenSplash = true;
+        setTimeout(() => {
+            document.getElementById('splashScreen').classList.remove('active');
+            document.getElementById('homeScreen').classList.add('active');
+            document.querySelector('.navbar').classList.add('active');
+        }, 2000);
+    }
+}
+
+// Initialize splash screen on page load
+window.addEventListener('load', initSplashScreen);
+
+// Screen Navigation
+function goHome() {
+    // Hide all screens except home
+    document.getElementById('homeScreen').classList.add('active');
+    document.getElementById('asanaScreen').classList.remove('active');
+    document.getElementById('uploadScreen').classList.remove('active');
+    document.getElementById('processingScreen').classList.remove('active');
+    document.getElementById('splashScreen').classList.remove('active');
+    
+    // Hide back button
+    document.getElementById('navBackBtn').style.display = 'none';
+    
+    // Reset video tab
+    document.getElementById('videoInput').value = '';
+    document.getElementById('selectedFile').style.display = 'none';
+    document.getElementById('videoPreview').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    selectedFile = null;
+    
+    // Reset webcam if running
+    if (webcamStream) {
+        stopWebcam();
+    }
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function navigateToAnalyze() {
+    // Show asana selection screen
+    document.getElementById('homeScreen').classList.remove('active');
+    document.getElementById('asanaScreen').classList.add('active');
+    document.getElementById('uploadScreen').classList.remove('active');
+    document.getElementById('processingScreen').classList.remove('active');
+    
+    // Show back button
+    document.getElementById('navBackBtn').style.display = 'flex';
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectAsana(asanaName) {
+    currentSelectedAsana = asanaName;
+    
+    // Update selected asana display
+    document.getElementById('selectedAsanaName').textContent = asanaName;
+    
+    // Show upload screen
+    document.getElementById('asanaScreen').classList.remove('active');
+    document.getElementById('uploadScreen').classList.add('active');
+    document.getElementById('processingScreen').classList.remove('active');
+    
+    // Reset form
+    document.getElementById('videoInput').value = '';
+    document.getElementById('selectedFile').style.display = 'none';
+    document.getElementById('videoPreview').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    selectedFile = null;
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 // Tab switching
 function switchTab(tab) {
@@ -69,26 +147,33 @@ async function analyzeVideo() {
         return;
     }
     
-    // Get selected pose
-    const poseSelect = document.getElementById('poseSelect');
-    const selectedPose = poseSelect.value;
-    
-    if (!selectedPose) {
-        alert('Please select the asana from the dropdown before uploading your video.');
-        return;
-    }
-    
-    // Show loading
-    document.getElementById('loading').style.display = 'block';
+    // Show processing screen
+    document.getElementById('uploadScreen').classList.remove('active');
+    document.getElementById('processingScreen').classList.add('active');
     document.getElementById('results').style.display = 'none';
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     
     // Create form data
     const formData = new FormData();
     formData.append('video', selectedFile);
-    formData.append('expected_pose', selectedPose);
+    formData.append('expected_pose', currentSelectedAsana);
     
     try {
+        // Update status message
+        document.getElementById('processingMessage').textContent = 'Uploading video...';
+        
         console.log('Sending video to:', `${API_URL}/analyze-pose`);
+        
+        // Simulate status updates
+        setTimeout(() => {
+            document.getElementById('processingMessage').textContent = 'Processing video...';
+        }, 1000);
+        
+        setTimeout(() => {
+            document.getElementById('processingMessage').textContent = 'Analyzing your posture...';
+        }, 2000);
+        
         const response = await fetch(`${API_URL}/analyze-pose`, {
             method: 'POST',
             body: formData
@@ -104,15 +189,23 @@ async function analyzeVideo() {
         
         const data = await response.json();
         console.log('Received data:', data);
+        
+        // Hide processing screen and show results
+        document.getElementById('processingScreen').classList.remove('active');
+        document.getElementById('uploadScreen').classList.add('active');
+        
         displayResults(data);
         
     } catch (error) {
         console.error('Full error:', error);
         console.error('Error name:', error.name);
         console.error('Error message:', error.message);
+        
+        // Hide processing screen and show upload screen
+        document.getElementById('processingScreen').classList.remove('active');
+        document.getElementById('uploadScreen').classList.add('active');
+        
         alert('Error analyzing video: ' + error.message + '\n\nCheck console for details (F12)');
-    } finally {
-        document.getElementById('loading').style.display = 'none';
     }
 }
 
@@ -123,8 +216,8 @@ function displayResults(data) {
     currentFrameIndex = 0;
     showAllFrames = false;
     
-    // Update asana name
-    document.getElementById('asanaName').textContent = data.expected_pose || 'Yoga Asana';
+    // Update asana name with selected asana
+    document.getElementById('asanaName').textContent = currentSelectedAsana;
     
     // Update statistics
     const accuracy = data.accuracy_percentage || 0;
@@ -302,24 +395,17 @@ function retakeVideo() {
     document.getElementById('videoPreview').scrollIntoView({ behavior: 'smooth' });
 }
 
-function backToHome() {
-    // Hide results and reset everything
-    document.getElementById('results').style.display = 'none';
-    document.getElementById('selectedFile').style.display = 'none';
-    document.getElementById('videoPreview').style.display = 'none';
-    selectedFile = null;
-    document.getElementById('videoInput').value = '';
-    document.getElementById('poseSelect').value = '';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
 // Webcam functionality
 async function startWebcam() {
     try {
         webcamStream = await navigator.mediaDevices.getUserMedia({ 
             video: { width: 640, height: 480 } 
         });
-        
+        Input').value = '';
+    document.getElementById('selectedFile').style.display = 'none';
+    document.getElementById('videoPreview').style.display = 'none';
+    selectedFile = null;
+    document.getElementById('video
         const webcamElement = document.getElementById('webcam');
         webcamElement.srcObject = webcamStream;
         
@@ -362,15 +448,21 @@ async function captureAndAnalyze() {
     
     // Convert canvas to blob
     canvas.toBlob(async (blob) => {
-        // Show loading
-        document.getElementById('loading').style.display = 'block';
+        // Show processing screen
+        document.getElementById('uploadScreen').classList.remove('active');
+        document.getElementById('processingScreen').classList.add('active');
         document.getElementById('results').style.display = 'none';
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         
         // Create form data
         const formData = new FormData();
         formData.append('frame', blob, 'webcam-capture.jpg');
         
         try {
+            // Update status message
+            document.getElementById('processingMessage').textContent = 'Analyzing your posture...';
+            
             const response = await fetch(`${API_URL}/analyze-webcam-frame`, {
                 method: 'POST',
                 body: formData
@@ -381,13 +473,21 @@ async function captureAndAnalyze() {
             }
             
             const data = await response.json();
+            
+            // Hide processing screen and show results
+            document.getElementById('processingScreen').classList.remove('active');
+            document.getElementById('uploadScreen').classList.add('active');
+            
             displayWebcamResult(data);
             
         } catch (error) {
             console.error('Error:', error);
+            
+            // Hide processing screen and show upload screen
+            document.getElementById('processingScreen').classList.remove('active');
+            document.getElementById('uploadScreen').classList.add('active');
+            
             alert('Error analyzing frame: ' + error.message);
-        } finally {
-            document.getElementById('loading').style.display = 'none';
         }
     }, 'image/jpeg');
 }
@@ -398,6 +498,9 @@ function displayWebcamResult(data) {
     document.getElementById('confidence').textContent = `${(data.confidence * 100).toFixed(1)}%`;
     document.getElementById('framesCount').textContent = '1';
     document.getElementById('correctFrames').textContent = data.is_correct ? '1 / 1' : '0 / 1';
+    
+    // Update asana name
+    document.getElementById('asanaName').textContent = currentSelectedAsana;
     
     // Update overall feedback
     document.getElementById('overallFeedback').textContent = data.feedback;
@@ -423,15 +526,16 @@ function displayWebcamResult(data) {
     document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Check API status on load
+// Check API status on load (silent check, errors handled during actual API calls)
 window.addEventListener('load', async () => {
     try {
         const response = await fetch(`${API_URL}/`);
         if (response.ok) {
             console.log('✅ Backend API is running');
+        } else {
+            console.warn('⚠️ Backend API status unknown');
         }
     } catch (error) {
-        console.error('⚠️ Backend API is not accessible:', error);
-        alert('Warning: Backend API is not running. Please start the backend server.');
+        console.warn('⚠️ Backend API is not accessible - will show error when needed');
     }
 });
